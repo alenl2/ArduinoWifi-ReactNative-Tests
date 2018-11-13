@@ -45,20 +45,13 @@ export default class App extends Component<Props> {
     }
   }
 
-  async tesad(id){
-    await this.usbs.startIoManager(id);
-  }
-
   
   getDeviceBlah() {
     this.getDeviceAsync().then(device => {
-      console.log("next");
-      console.log(device);
       if (device) {
-        DeviceEventEmitter.addListener('UsbSerialEvent', (e) => {
-          console.log('UsbSerialEvent', e);
+        DeviceEventEmitter.addListener('newData', (e) => {
+          console.log('newData', e);
         });
-        this.tesad(device.id);
       }
     });
   }
