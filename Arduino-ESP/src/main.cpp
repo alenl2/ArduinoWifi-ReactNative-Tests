@@ -95,7 +95,7 @@ void setup() {
     Wire.begin(4, 0);
     Wire.setClock(400000); // use 400 kHz I2C
 
-    sensor.setTimeout(500);
+    sensor.setTimeout(10000);
     if (!sensor.init())
     {
       sensorState = 1;
@@ -113,9 +113,9 @@ void loop() {
     
     if(sensorState == 2){
         sensor.setDistanceMode(dm);
-        sensor.setMeasurementTimingBudget(50*1000);
+        sensor.setMeasurementTimingBudget(70*1000);
 
-        sensor.startContinuous(50);
+        sensor.startContinuous(70);
         sensorState = 3;
         Serial.println("Sensor started");
     }
