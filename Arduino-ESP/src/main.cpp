@@ -18,13 +18,11 @@ WebSocketsServer webSocket = WebSocketsServer(81);
 VL53L1X sensor;
 int sensorState = 0;
 
-const char *ssid = "ESPap";
-const char *password = "thereisnospoon";
-
 IPAddress local_IP(192,168,1,2);
 IPAddress gateway(192,168,1,1);
 IPAddress subnet(255,255,255,0);
 
+VL53L1X::DistanceMode dm = VL53L1X::Long;
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
 
@@ -38,18 +36,25 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
               char temp[100];
               sprintf(temp,"[%u] Connected from %d.%d.%d.%d url: %s", num, ip[0], ip[1], ip[2], ip[3], payload);
               Serial.println(temp);
-				      webSocket.sendTXT(num, temp);
             }
             break;
         case WStype_TEXT:
-            char temp1[100];
-            sprintf(temp1,"[%u] get Text: %s\n", num, payload);
-            webSocket.sendTXT(num, temp1);
+            Serial.println(length);
+            if(length == 0){
+                dm = VL53L1X::Short;
+            }
+            if(length == 1){
+                dm = VL53L1X::Medium;
+            }
+             if(length == 2){
+                dm = VL53L1X::Long;
+            }
+            sensorState = 2;
             break;
         case WStype_BIN:
            char temp2[100];
             sprintf(temp2,"[%u] get binary length: %u\n", num, length);
-            webSocket.sendTXT(num, temp2);
+            Serial.println(temp2);
             hexdump(payload, length);
             break;
     }
@@ -67,19 +72,17 @@ void setup() {
     }
 */
     WiFi.mode(WIFI_AP_STA);
-  WiFi.printDiag(Serial);
-  Serial.print("Setting soft-AP configuration ... ");
-  Serial.println(WiFi.softAPConfig(local_IP, gateway, subnet) ? "Ready" : "Failed!");
+    WiFi.printDiag(Serial);
+    Serial.print("Setting soft-AP configuration ... ");
+    Serial.println(WiFi.softAPConfig(local_IP, gateway, subnet) ? "Ready" : "Failed!");
 
-  Serial.print("Setting soft-AP ... ");
-  Serial.println(WiFi.softAP("ESPsoftAP_01") ? "Ready" : "Failed!");
+    Serial.print("Setting soft-AP ... ");
+    Serial.println(WiFi.softAP("ESPsoftAP_01","thereisnospoon") ? "Ready" : "Failed!");
 
-  Serial.print("Soft-AP IP address = ");
-  Serial.println(WiFi.softAPIP());
+    Serial.print("Soft-AP IP address = ");
+    Serial.println(WiFi.softAPIP());
 
-
-
-  WiFi.printDiag(Serial);
+    WiFi.printDiag(Serial);
     for(uint8_t t = 4; t > 0; t--) {
         Serial.printf("[SETUP] BOOT WAIT %d...\n", t);
         Serial.flush();
@@ -98,25 +101,36 @@ void setup() {
       sensorState = 1;
       Serial.println("Failed to detect and initialize sensor!");
     }else{
-      sensorState = 2;
+        sensorState = 2;
+        Serial.println("Sensor inited");
     }
     
-    sensor.setDistanceMode(VL53L1X::Short);
-    sensor.setMeasurementTimingBudget(50*1000);
 
-    sensor.startContinuous(50);
 }
 
 void loop() {
     webSocket.loop();
-    sensor.read();
     
+    if(sensorState == 2){
+        sensor.setDistanceMode(dm);
+        sensor.setMeasurementTimingBudget(50*1000);
+
+        sensor.startContinuous(50);
+        sensorState = 3;
+        Serial.println("Sensor started");
+    }
+
+    if(sensorState == 3){
+        sensor.read();
+    }
     DynamicJsonBuffer jsonBuffer;
     JsonObject& root = jsonBuffer.createObject();
     root["range"] = sensor.ranging_data.range_mm;
     root["status"] = VL53L1X::rangeStatusToString(sensor.ranging_data.range_status);
     root["peak"] = sensor.ranging_data.peak_signal_count_rate_MCPS;
     root["ambient"] = sensor.ranging_data.ambient_count_rate_MCPS;
+    root["sensorState"] =sensorState;
+    root["mode"] = (int)dm;
 
     String output;
     root.printTo(output);
