@@ -4393,10 +4393,6 @@ react-native-svg@^6.2.1:
     lodash "^4.16.6"
     pegjs "^0.10.0"
 
-"react-native-usbserial@https://github.com/alenl2/react-native-usbserial":
-  version "1.0.1"
-  resolved "https://github.com/alenl2/react-native-usbserial#8ee8269ace5e4592b64b7963505ea993da4f42cc"
-
 react-native@0.57.4:
   version "0.57.4"
   resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.57.4.tgz#cb7ba78e8be420737868fa9a97caa897a534c893"

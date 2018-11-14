@@ -9,8 +9,7 @@
   "dependencies": {
     "react": "16.6.0-alpha.8af6728",
     "react-native": "0.57.4",
-    "react-native-keep-awake": "^4.0.0",
-    "react-native-usbserial": "https://github.com/alenl2/react-native-usbserial"
+    "react-native-keep-awake": "^4.0.0"
   },
   "devDependencies": {
     "babel-jest": "23.6.0",
