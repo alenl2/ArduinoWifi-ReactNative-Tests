@@ -190,18 +190,24 @@ public class ReactUsbSerialModule extends ReactContextBaseJavaModule {
             }
         }
     }
-	
+
 	private void requestUserPermission() {
         ReactApplicationContext rAppContext = getReactApplicationContext();
         PendingIntent mPendingIntent = PendingIntent.getBroadcast(rAppContext, 0, new Intent(ACTION_USB_PERMISSION), 0);
         usbManager.requestPermission(device, mPendingIntent);
     }
 	
+	
     private void sendEvent(ReactContext reactContext, String eventName, @Nullable WritableMap params) {
         reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(eventName, params);
     }
 	
+	String wholeData = "";
+	
     public void emitNewData(byte[] data) {
+		String inData = new String(data)
+		
+		inData.s
         WritableMap params = Arguments.createMap();
         params.putString("data", new String(data));
         sendEvent(REACTCONTEXT, "OnSerialData", params);
