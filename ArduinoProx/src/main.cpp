@@ -13,6 +13,12 @@ int status;
 
 void setup() {
   Serial.begin(115200);
+  pinMode(8, OUTPUT);
+  digitalWrite(8, HIGH);
+
+  pinMode(9, OUTPUT);
+  digitalWrite(9, HIGH);
+  
 }
 
 void loop() {
